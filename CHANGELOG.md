@@ -25,6 +25,13 @@ Realease with [maproulette-backend_v4.4.11](https://github.com/maproulette/mapro
 * capture user settings changes in local state by @jschwarz2030 in https://github.com/maproulette/maproulette3/pull/2192
 * Remove node versions 21 and fix node version bump bugs by @CollinBeczak in https://github.com/maproulette/maproulette3/pull/2195
 
+## [v3.14.1] - 2023-11-24
+Realease with [maproulette-backend_v4.4.10](https://github.com/maproulette/maproulette-backend/releases/tag/v4.4.10)
+
+## What's Changed
+* call backend service for system notices by @jschwarz2030 in https://github.com/maproulette/maproulette3/pull/2179
+* add silent catch statement to system notices call by @jschwarz2030 in https://github.com/maproulette/maproulette3/pull/2180
+
 ## [v3.14.0] - 2023-11-14
 Realease with [maproulette-backend_v4.4.9](https://github.com/maproulette/maproulette-backend/releases/tag/v4.4.9)
 
