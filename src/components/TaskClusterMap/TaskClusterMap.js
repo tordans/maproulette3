@@ -291,6 +291,7 @@ export class TaskClusterMap extends Component {
   debouncedUpdateBounds = _debounce(this.props.updateBounds, 500)
 
   spiderIfNeeded = (marker, allMarkers) => {
+    debugger
     if (this.state.spidered.has(marker.options.taskId)) {
       // Marker is already spidered. Make its spider line bold
       this.mapRef.current.leafletElement.eachLayer(layer => {
@@ -308,6 +309,7 @@ export class TaskClusterMap extends Component {
 
     // Determine if we need to spider out overlapping markers
     const overlapping = this.overlappingTasks(marker, allMarkers)
+    debugger
     if (overlapping && overlapping.length > 0) {
       overlapping.push(marker)
       this.spider(marker, overlapping)
@@ -516,11 +518,12 @@ export class TaskClusterMap extends Component {
       let popup = null
       const taskId = mark.options.taskId
       let position = mark.position
+      debugger
       if (taskId) {
         if (this.props.showMarkerPopup) {
           popup = this.props.showMarkerPopup(mark)
         }
-
+debugger
         if (this.props.allowSpidering) {
           onClick = () => this.spiderIfNeeded(mark, consolidatedMarkers)
         }
@@ -631,6 +634,7 @@ export class TaskClusterMap extends Component {
       // True tasks (versus clusters representing 1 task) won't have a
       // numberOfPoints field set, so add that for compatibility and mark that
       // it's actually a task
+      debugger
       if (!clusterData.numberOfPoints) {
         clusterData.numberOfPoints = 1
         clusterData.isTask = true

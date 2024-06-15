@@ -74,7 +74,10 @@ export class BurndownChart extends Component {
         }
         <ResponsiveLine data={burndownMetrics}
                         theme={{
-                          textColor: "#FFF",
+                          text: {
+                            fill: '#FFF',
+                            fontSize: 11
+                          },
                         }}
                         colors={[colors["purple"]]}
                         textColor="#FFF"

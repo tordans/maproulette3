@@ -3,14 +3,14 @@
   "version": "3.15.5",
   "private": true,
   "dependencies": {
-    "@apollo/client": "^3.5.4",
+    "@apollo/client": "^3.10.5",
     "@formatjs/intl-relativetimeformat": "^11.2.14",
-    "@mapbox/geo-viewport": "^0.4.0",
-    "@nivo/bar": "^0.79.1",
-    "@nivo/core": "^0.79.0",
-    "@nivo/line": "^0.79.1",
-    "@nivo/radar": "^0.79.1",
-    "@popperjs/core": "^2.8.4",
+    "@mapbox/geo-viewport": "^0.5.0",
+    "@nivo/bar": "^0.87.0",
+    "@nivo/core": "^0.87.0",
+    "@nivo/line": "^0.87.0",
+    "@nivo/radar": "^0.87.0",
+    "@popperjs/core": "^2.11.8",
     "@rapideditor/rapid": "^2.1.1",
     "@rjsf/core": "^4.2.3",
     "@turf/bbox": "^6.0.1",
@@ -38,11 +38,11 @@
     "geojson-validation": "^1.0.2",
     "geojsontoosm": "^0.0.3",
     "graphql": "^16.0.1",
-    "leaflet": "^1.6.0",
-    "leaflet-lasso": "^2.1.0",
+    "leaflet": "^1.9.4 ",
+    "leaflet-lasso": "^2.2.13",
     "leaflet-vectoricon": "https://github.com/nrotstan/Leaflet.VectorIcon.git#honor-existing-margin-styles",
-    "leaflet.markercluster": "^1.4.1",
-    "mapillary-js": "^4.1.0",
+    "leaflet.markercluster": "^1.5.3",
+    "mapillary-js": "^4.1.2",
     "normalize.css": "^7.0.0",
     "normalizr": "^3.6.0",
     "piwik-react-router": "^0.12.1",
@@ -66,7 +66,7 @@
     "react-intl-formatted-duration": "^4.0.0",
     "react-leaflet": "^2.7.0",
     "react-leaflet-bing-v2": "~5.1.2",
-    "react-leaflet-markercluster": "^2.0.0",
+    "react-leaflet-markercluster": "^3.0.0-rc1",
     "react-onclickoutside": "^6.6.3",
     "react-popper": "^2.2.4",
     "react-query": "^3.34.2",
@@ -153,6 +153,6 @@
     ]
   },
   "resolutions": {
-    "react-error-overlay": "6.0.9"
+    "react-error-overlay": "6.0.11"
   }
 }
