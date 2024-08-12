@@ -13,14 +13,11 @@ import { challengePassesLocationFilter }
        from '../../../services/Challenge/ChallengeLocation/ChallengeLocation'
 import { challengePassesGlobalFilter }
        from '../../../services/Challenge/ChallengeGlobal/ChallengeGlobal'
-import { challengePassesArchivedFilter }
-       from '../../../services/Challenge/ChallengeArchived/ChallengeArchived'
 import { challengePassesProjectFilter }
        from '../../../services/Challenge/ChallengeProject/ChallengeProject'
 
 const allFilters = [
   challengePassesGlobalFilter,
-  challengePassesArchivedFilter,
   challengePassesDifficultyFilter,
   challengePassesKeywordFilter,
   challengePassesCategorizationKeywordsFilter,
