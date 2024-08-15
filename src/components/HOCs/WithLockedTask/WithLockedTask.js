@@ -42,6 +42,7 @@ const WithLockedTask = function(WrappedComponent) {
       readOnly: false,
       tryingLock: false,
       failureDetails: null,
+      completingTask: null
     }
 
     lockTask = task => {
@@ -110,6 +111,10 @@ const WithLockedTask = function(WrappedComponent) {
       }
     }
 
+    setCompletingTask = task => {
+      this.setState({ completingTask: task })
+    }
+
     componentDidMount() {
       const { task } = this.props;
 
@@ -122,8 +127,10 @@ const WithLockedTask = function(WrappedComponent) {
 
     componentDidUpdate(prevProps) {
       if (_get(prevProps, 'task.id') !== _get(this.props, 'task.id')) {
-        if (prevProps.task) {
+        if (prevProps.task && !this.state.completingTask) {
           this.unlockTask(prevProps.task)
+        } else {
+          this.setCompletingTask(null)
         }
 
         if (this.props.task) {
@@ -137,8 +144,10 @@ const WithLockedTask = function(WrappedComponent) {
       window.removeEventListener('storage', this.syncLocks);
 
       if (task) {
-        if (localStorage.getItem('isLoggedIn')) {
+        if (localStorage.getItem('isLoggedIn') && !this.state.completingTask) {
           this.unlockTask(task)
+        } else {
+          this.setCompletingTask(null)
         }
         lockStorage.removeLock(task.id)
       }
@@ -150,6 +159,8 @@ const WithLockedTask = function(WrappedComponent) {
           {..._omit(this.props, ['startTask', 'releaseTask'])}
           taskReadOnly={this.state.readOnly}
           tryingLock={this.state.tryingLock}
+          setCompletingTask={this.setCompletingTask}
+          completingTask={this.state.completingTask}
           lockFailureDetails={this.state.failureDetails}
           tryLocking={this.lockTask}
           unlockTask={this.unlockTask}

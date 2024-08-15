@@ -142,21 +142,20 @@ export class ActiveTaskControls extends Component {
   }
 
   /** Mark the task as complete with the given status */
-  complete = taskStatus => {
-    this.props.saveTaskTags(this.props.task, this.state.tags)
-    this.props.setCompletingTask(this.props.task.id)
-
+  complete = async taskStatus => {
     const revisionSubmission = this.props.task.reviewStatus === TaskReviewStatus.rejected
+     this.props.setCompletingTask(this.props.task.id)
+     this.props.saveTaskTags(this.props.task, this.state.tags)
 
     if (!_isUndefined(this.state.submitRevision)) {
-      this.props.updateTaskReviewStatus(this.props.task, this.state.submitRevision,
+       await this.props.updateTaskReviewStatus(this.props.task, this.state.submitRevision,
                                         this.state.comment, "",
                                         this.state.revisionLoadBy, this.props.history,
                                         this.props.taskBundle, this.state.requestedNextTask,
                                         taskStatus)
     }
     else {
-      this.props.completeTask(this.props.task, this.props.task.parent.id,
+      await this.props.completeTask(this.props.task, this.props.task.parent.id,
                               taskStatus, this.state.comment, "",
                               revisionSubmission ? null : this.props.taskLoadBy,
                               this.props.user.id,

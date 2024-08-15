@@ -19,7 +19,6 @@ export function WithTaskBundle(WrappedComponent) {
       loading: false,
       bundleEditsDisabled: false,
       taskBundle: null,
-      completingTask: null,
       initialBundle: null,
       selectedTasks: [],
       resetSelectedTasks: null
@@ -44,8 +43,7 @@ export function WithTaskBundle(WrappedComponent) {
           selectedTasks: [], 
           initialBundle: null, 
           taskBundle: null, 
-          loading: false, 
-          completingTask: null 
+          loading: false,
         })
 
         if (_isFinite(_get(task, 'bundleId'))) {
@@ -56,7 +54,7 @@ export function WithTaskBundle(WrappedComponent) {
 
         const prevInitialBundle = prevState.initialBundle
         const prevTaskBundle = prevState.taskBundle
-        if ((prevTaskBundle || prevInitialBundle) && prevTaskBundle !== prevInitialBundle && !prevState.completingTask) {
+        if ((prevTaskBundle || prevInitialBundle) && prevTaskBundle !== prevInitialBundle && !prevProps.completingTask) {
           if (prevInitialBundle) {
             // Whenever the user redirects, skips a task, or refreshes and there is a 
             // new bundle state, the bundle state needs to reset to its initial value.
@@ -66,7 +64,7 @@ export function WithTaskBundle(WrappedComponent) {
             // no initial value, the bundle will be destroyed.
             this.clearActiveTaskBundle(prevTaskBundle.bundleId)
           }
-        } else if ((prevTaskBundle && prevInitialBundle) && prevTaskBundle !== prevInitialBundle && prevState.completingTask) {
+        } else if ((prevTaskBundle && prevInitialBundle) && prevTaskBundle !== prevInitialBundle && prevProps.completingTask) {
           await this.unlockTasks(prevTaskBundle, prevTaskBundle)
         }
       }
@@ -94,8 +92,8 @@ export function WithTaskBundle(WrappedComponent) {
     }
 
     resetBundle = async () => {
-      const { initialBundle, taskBundle, completingTask } = this.state
-      if (!completingTask) {
+      const { initialBundle, taskBundle } = this.state
+      if (!this.props.completingTask) {
         this.resetSelectedTasks()
         if (taskBundle || initialBundle && taskBundle !== initialBundle) {
           if (initialBundle) {
@@ -230,18 +228,12 @@ export function WithTaskBundle(WrappedComponent) {
       }
     }
 
-    setCompletingTask = task => {
-      this.setState({ selectedTasks: [], completingTask: task })
-    }
-
     render() {
       return (
         <WrappedComponent
           {..._omit(this.props, ['bundleTasks', 'deleteTaskBundle', 'removeTaskFromBundle'])}
           taskBundle={this.state.taskBundle}
           taskBundleLoading={this.state.loading}
-          setCompletingTask={this.setCompletingTask}
-          completingTask={this.props.completingTask}
           createTaskBundle={this.createTaskBundle}
           resetToInitialTaskBundle={this.resetToInitialTaskBundle}
           initialBundle={this.state.initialBundle}

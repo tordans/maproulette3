@@ -127,16 +127,7 @@ export class TaskPane extends Component {
                   needsReview, requestedNextTask, osmComment, tagEdits, taskBundle) => {
     this.props.completeTask(task, challengeId, taskStatus, comment, tags, taskLoadBy, userId,
                             needsReview, requestedNextTask, osmComment, tagEdits,
-                            this.state.completionResponses, taskBundle).then(() => {
-      this.clearCompletingTask()
-    })
-  }
-
-  clearCompletingTask = () => {
-    // Clear on next tick to give our animation transition a chance to clean up.
-    setTimeout(() => {
-      this.props.setCompletingTask(null)
-    }, 0)
+                            this.state.completionResponses, taskBundle)
   }
 
   setCompletionResponse = (propertyName, value) => {
