@@ -32,7 +32,7 @@ export const fetchOSMData = function(bbox) {
         reject(AppErrors.osm.bandwidthExceeded)
       }
     }).catch(error => {
-      console.log(error)
+      console.error(error)
       reject(AppErrors.osm.fetchFailure)
     })
   })
@@ -81,7 +81,7 @@ export const fetchOSMElement = function(idString, asXML=false) {
         reject(error)
       }
       else {
-        console.log(error)
+        console.error(error)
         reject(AppErrors.osm.fetchFailure)
       }
     })
@@ -131,7 +131,7 @@ export const fetchOSMElementHistory = function(idString, includeChangesets=false
         reject(error)
       }
       else {
-        console.log(error)
+        console.error(error)
         reject(AppErrors.osm.fetchFailure)
       }
     })
@@ -166,7 +166,7 @@ export const fetchOSMChangesets = function(changesetIds) {
         reject(AppErrors.osm.bandwidthExceeded)
       }
     }).catch(error => {
-      console.log(error)
+      console.error(error)
       reject(AppErrors.osm.fetchFailure)
     })
   })

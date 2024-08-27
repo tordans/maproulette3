@@ -158,19 +158,28 @@ export const TaskMapContainer = (props) => {
    * Invoked by LayerToggle when the user wishes to toggle visibility of
    * OSM data on or off.
    */
-  const toggleOSMDataVisibility = () => {
+  const toggleOSMDataVisibility = async () => {
     if (!showOSMData && !osmData && !osmDataLoading) {
       setOsmDataLoading(true)
-      props.fetchOSMData(
-        map.getBounds().toBBoxString()
-      ).then(xmlData => {
+      try {
+        const bbox = map.getBounds().toBBoxString()
+        const xmlData = await props.fetchOSMData(bbox)
+
         // Indicate the map should skip fitting to bounds as the OSM data could
         // extend beyond the current view and we don't want the map to zoom out
         setOsmData(xmlData)
+        setShowOSMData(true)
+      } catch (error) {
+        console.error('Error fetching OSM data:', error)
+        setOsmData(null)
+        setShowOSMData(false)
+      } finally {
         setOsmDataLoading(false)
-      })
+      }
+    } else {
+      setOsmData(null)
+      setShowOSMData(false)
     }
-    setShowOSMData(!showOSMData)
   }
 
   const toggleOSMElements = element => {
