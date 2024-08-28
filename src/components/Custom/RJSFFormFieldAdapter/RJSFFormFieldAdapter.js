@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import classNames from 'classnames'
 import _get from 'lodash/get'
 import _isString from 'lodash/isString'
@@ -347,6 +347,145 @@ export const TagsInputField = props => {
   )
 }
 
+
+const GeoJsonChecks = ({ acceptedFiles }) => {
+  const [propertyValues, setPropertyValues] = useState({});
+  const [commonProps, setCommonProps] = useState([]);
+
+  useEffect(() => {
+    if (acceptedFiles && acceptedFiles instanceof File) {
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        try {
+          const content = reader.result;
+          console.log('File content:', content);
+
+          // Parse the file content as JSON
+          const json = JSON.parse(content);
+
+          if (json.features && Array.isArray(json.features)) {
+            const featureProperties = json.features.map(feature => feature.properties || {});
+            const propertyValuesMap = {};
+
+            // Collect all property names and their values
+            featureProperties.forEach(properties => {
+              Object.keys(properties).forEach(key => {
+                if (!propertyValuesMap[key]) {
+                  propertyValuesMap[key] = new Set();
+                }
+                propertyValuesMap[key].add(properties[key]);
+              });
+            });
+
+            // Determine properties present in every feature
+            const commonProps = Object.keys(propertyValuesMap).filter(key => {
+              return featureProperties.every(properties => properties.hasOwnProperty(key));
+            });
+
+            setCommonProps(commonProps);
+
+            // Collect common values for each property
+            const commonValuesMap = {};
+            commonProps.forEach(prop => {
+              const values = [...new Set(propertyValuesMap[prop])];
+
+              if (values.length === featureProperties.length) {
+                commonValuesMap[prop] = values;
+              }
+            });
+
+            setPropertyValues(commonValuesMap);
+
+          } else {
+            console.error('Error: Invalid GeoJSON format (missing features array).');
+          }
+        } catch (e) {
+          console.error('Error parsing file content. Ensure the file is valid JSON.');
+          setPropertyValues({});
+        }
+      };
+
+      reader.onerror = () => {
+        console.error('Error reading file.');
+        setPropertyValues({});
+      };
+
+      reader.readAsText(acceptedFiles);
+    }
+  }, [acceptedFiles]);
+
+  return (
+    <div className="mr-mt-2">
+      Learn more about these id's here: learn.maproulette.org
+      {Object.keys(propertyValues).length > 0 || commonProps.length > 0 ? (
+        <>
+          {/* Default IDs Section */}
+          {["id", "@id", "osmid", "osm_id", "name"].some(prop => Object.keys(propertyValues).includes(prop)) ? (
+            <div className="mr-flex">
+              <div>Default ID's detected:</div>
+              <ul className="mr-flex">
+                {Object.entries(propertyValues).map(([prop, values]) => (
+                  ["id", "@id", "osmid", "osm_id", "name"].includes(prop) && (
+                    <li
+                      key={prop}
+                      className='mr-text-green-lighter mr-ml-2'
+                    >
+                      {prop}
+                    </li>
+                  )
+                ))}
+              </ul>
+            </div>
+          ) : <div className="mr-text-red">No default Id's detected, external Id recommended!</div>}
+
+          {/* External IDs Section */}
+          {Object.keys(propertyValues).some(prop => !["id", "@id", "osmid", "osm_id", "name"].includes(prop)) ? (
+            <div className="mr-flex">
+              <div>Available OSM/External ID's:</div>
+              <ul className="mr-flex">
+                {Object.entries(propertyValues).map(([prop, values]) => (
+                  !["id", "@id", "osmid", "osm_id", "name"].includes(prop) && (
+                    <li
+                      key={prop}
+                      className='mr-ml-2'
+                    >
+                      {prop}
+                    </li>
+                  )
+                ))}
+              </ul>
+            </div>
+          ): <div className="mr-text-grey">No OSM/External ID's Detected.</div>}
+
+          {/* Common Properties Section */}
+          {commonProps.length > 0 && (
+          <div className="mr-flex">
+          <div className="mr-whitespace-nowrap mr-mr-2">All Detected Properties:</div>
+          <ul className="mr-flex mr-flex-wrap">
+            {commonProps.map(prop => (
+              <li
+                key={prop}
+                className='mr-text-grey mr-mr-2'
+              >
+                {prop},
+              </li>
+            ))}
+          </ul>
+        </div>
+        
+          )}
+        </>
+      ) : (
+        <p className='mr-text-red-light'>
+          No unique IDs found. Please check your GeoJSON for unique feature IDs on each feature to avoid duplication of tasks on rebuild.
+        </p>
+      )}
+    </div>
+  );
+};
+
+
 /**
  * Provides a custom Dropzone widget for extracting *text* content (like
  * GeoJSON) from a local file into a string field in the form. To use, this
@@ -355,75 +494,84 @@ export const TagsInputField = props => {
  * `"ui:widget": DropzoneTextUpload`). The form field should be of type string,
  * and it will be set with the text content of the uploaded file.
  */
-export const DropzoneTextUpload = ({id, onChange, readonly, formContext, dropAreaClassName}) => {
-  const idRequirements = (id !== "root_taskWidgetLayout" && id !== "root")
+export const DropzoneTextUpload = ({
+  id, onChange, readonly, formContext, dropAreaClassName
+}) => {
+  const [acceptedFiles, setAcceptedFiles] = useState([]);
+  const [uploadErrorText, setUploadErrorText] = useState('');
+  const idRequirements = id !== "root_taskWidgetLayout" && id !== "root";
 
   if (readonly && idRequirements) {
     return (
       <div className="readonly-file mr-text-pink">
         <FormattedMessage {...messages.readOnlyFile} />
       </div>
-    )
+    );
   }
 
   return (
-    <Dropzone
-      acceptClassName="active"
-      multiple={false}
-      disablePreview
-      onDrop={files => {
-        formContext[id] = {file: files[0]}
-        onChange(files[0] ? files[0].name : files[0])
-      }}
-    >
-      {({acceptedFiles, getRootProps, getInputProps}) => {
-        const [uploadErrorText, setUploadErrorText] = useState('')
-
-        if (acceptedFiles.length > 0) {
-          const fileName = acceptedFiles[0].name;
-          if (!fileName.endsWith('.geojson') && !fileName.endsWith('.json')) {
-            acceptedFiles.pop();
-            setUploadErrorText(
-              <span className="mr-mr-4 mr-text-red-light mr-ml-1">
-                { idRequirements ?
-                  <FormattedMessage {...messages.uploadErrorGeoJSON} /> :
-                  <FormattedMessage {...messages.uploadErrorJSON} />
-                } 
-              </span>
-            );
-          }
-        }
-        const body = acceptedFiles.length > 0 ? <p>{acceptedFiles[0].name}<input {...getInputProps()} /></p> : (
-          <span className="mr-flex mr-items-center">
-            <SvgSymbol
-              viewBox='0 0 20 20'
-              sym="upload-icon"
-              className="mr-fill-current mr-w-3 mr-h-3 mr-mr-4"
-            />
-            {uploadErrorText}
-              { idRequirements ?
-                <FormattedMessage {...messages.uploadFilePromptGeoJSON} /> :
-                <FormattedMessage {...messages.uploadFilePromptJSON} />
-              } 
-            <input {...getInputProps()} />
-          </span>
-        )
-
-        return (
-          <div
-            className={
-              dropAreaClassName ? dropAreaClassName : "dropzone mr-text-grey-lighter mr-p-4 mr-border-2 mr-rounded mr-mx-auto"
+    <div>
+      <Dropzone
+        acceptClassName="active"
+        multiple={false}
+        disablePreview
+        onDrop={files => {
+          setAcceptedFiles(files);
+          formContext[id] = { file: files[0] };
+          onChange(files[0] ? files[0].name : '');
+        }}
+      >
+        {({ getRootProps, getInputProps }) => {
+          if (acceptedFiles.length > 0) {
+            const fileName = acceptedFiles[0].name;
+            if (!fileName.endsWith('.geojson') && !fileName.endsWith('.json')) {
+              setUploadErrorText(
+                <span className="mr-mr-4 mr-text-red-light mr-ml-1">
+                  {idRequirements
+                    ? <FormattedMessage {...messages.uploadErrorGeoJSON} />
+                    : <FormattedMessage {...messages.uploadErrorJSON} />
+                  }
+                </span>
+              );
+              setAcceptedFiles([]); // Clear invalid file
             }
-            {...getRootProps()}
-          >
-            {body}
-          </div>
-        )
-      }}
-    </Dropzone>
-  )
-}
+          }
 
+          const body = acceptedFiles.length > 0 ? (
+            <p>
+              {acceptedFiles[0].name}
+              <input {...getInputProps()} />
+            </p>
+          ) : (
+            <span className="mr-flex mr-items-center">
+              <SvgSymbol
+                viewBox='0 0 20 20'
+                sym="upload-icon"
+                className="mr-fill-current mr-w-3 mr-h-3 mr-mr-4"
+              />
+              {uploadErrorText}
+              {idRequirements
+                ? <FormattedMessage {...messages.uploadFilePromptGeoJSON} />
+                : <FormattedMessage {...messages.uploadFilePromptJSON} />
+              }
+              <input {...getInputProps()} />
+            </span>
+          );
+
+          return (
+            <div
+              className={dropAreaClassName || "dropzone mr-text-grey-lighter mr-p-4 mr-border-2 mr-rounded mr-mx-auto"}
+              {...getRootProps()}
+            >
+              {body}
+            </div>
+          );
+        }}
+      </Dropzone>
+      {acceptedFiles.length > 0 && <GeoJsonChecks acceptedFiles={acceptedFiles[0]} />}
+    </div>
+  );
+};
 /**
  * Interprets and renders the given field description as Markdown
  */

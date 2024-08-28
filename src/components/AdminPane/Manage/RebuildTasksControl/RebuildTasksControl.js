@@ -66,19 +66,19 @@ export class RebuildTasksControl extends Component {
     let fileUploadArea = null
     if (challenge.dataSource() === 'local') {
       const uploadContext = {}
-      fileUploadArea = DropzoneTextUpload({
-        id: 'geojson',
-        required: true,
-        readonly: false,
-        formContext: uploadContext,
-        dropAreaClassName: "mr-text-green-white mr-border-matisse-blue mr-border-2 mr-rounded mr-text-sm mr-p-4 mr-cursor-pointer",
-        onChange: filename => {
+      fileUploadArea = <DropzoneTextUpload
+        id='geojson'
+        required={true}
+        readonly={false}
+        formContext={uploadContext}
+        dropAreaClassName="mr-text-green-white mr-border-matisse-blue mr-border-2 mr-rounded mr-text-sm mr-p-4 mr-cursor-pointer"
+        onChange={filename => {
           this.setState({
             localFilename: filename,
             localFile: uploadContext.geojson,
           })
-        },
-      })
+        }}
+      />
     }
 
     let originDateField = null
