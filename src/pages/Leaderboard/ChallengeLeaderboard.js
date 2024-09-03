@@ -23,7 +23,7 @@ export class ChallengeLeaderboard extends Component {
     return <Leaderboard leaderboardOptions={{onlyEnabled: false, filterChallenges: true}}
                         suppressTopChallenges
                         suppressCountrySelection
-                        challenges={[{id: this.props.match.params.challengeId}]}
+                        challenge={this.props.challenge.id}
                         displayName={challengeNameLink}
                         {...this.props} />
   }

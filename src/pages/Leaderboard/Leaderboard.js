@@ -71,21 +71,10 @@ class Leaderboard extends Component {
           <header className="mr-mb-8 mr-rounded mr-bg-black-10 mr-shadow mr-p-4 md:mr-px-6 md:mr-py-8 lg:mr-flex lg:mr-justify-between mr-text-white mr-text-center lg:mr-text-left">
             <div className="mr-max-w-md mr-mb-4 lg:mr-mb-0 lg:mr-pr-8">
               <h1 className="mr-h2 mr-mb-2">
-                {this.props.displayName ?
-                 <><FormattedMessage {...messages.leaderboardTitle} />: {this.props.displayName}</> :
-                 <FormattedMessage {...messages.leaderboardGlobal} />
-                }
+                <FormattedMessage {...messages.leaderboardTitle} />: {this.props.displayName}
               </h1>
-              <h3 className="mr-text-sm mr-text-yellow mr-uppercase mr-tracking-wide mr-font-normal">
-                {this.props.countryCode ?
-                 <FormattedMessage {...messages.updatedDaily} /> :
-                 <FormattedMessage {...messages.updatedFrequently} />
-                }
-              </h3>
             </div>
-            {
-              !process.env.REACT_APP_DISABLE_USER_LEADERBOARD_CONFIGS
-                ? <div className="mr-flex mr-justify-center mr-mb-2">
+              <div className="mr-flex mr-justify-center mr-mb-2">
                     <PastDurationSelector
                       className="mr-button mr-mr-8"
                       pastMonthsOptions={[ALL_TIME, CURRENT_MONTH, 1, 3, 6, 12, CUSTOM_RANGE]}
@@ -95,25 +84,20 @@ class Leaderboard extends Component {
                       customStartDate={this.props.startDate ? new Date(this.props.startDate) : null}
                       customEndDate={this.props.endDate ? new Date(this.props.endDate) : null}
                     />
-                    {!this.props.suppressCountrySelection && !process.env.REACT_APP_DISABLE_COUNTRY_LEADERBOARD_CONFIG &&
+                    {/* {!this.props.suppressCountrySelection && !process.env.REACT_APP_DISABLE_COUNTRY_LEADERBOARD_CONFIG &&
                     <CountrySelector
                       className="mr-button"
                       currentCountryCode={this.props.countryCode}
                       selectCountry={this.props.setCountryCode}
                     />
-                    }
+                    } */}
                   </div>
-                : null
-            }
           </header>
-
-          {_get(this.props, "leaderboardOptions.filterCountry") &&
-            <LeaderboardMap {...this.props} className="mr-mb-8 mr-rounded mr-shadow" />
-          }
 
           <div className="sm:mr-grid sm:mr-grid-columns-2 md:mr-grid-columns-3 sm:mr-grid-gap-8">
             {topLeaderCards}
           </div>
+
           {remainingLeaderRows}
 
           {_isEmpty(this.props.leaderboard) &&

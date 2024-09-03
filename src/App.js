@@ -7,7 +7,7 @@ import Metrics from './pages/Metrics/Metrics'
 import Dashboard from './pages/Dashboard/Dashboard.js'
 import Leaderboard from './pages/Leaderboard/Leaderboard'
 // Disable Pages till leaderboards support unique queries
-// import ChallengeLeaderboard from './pages/Leaderboard/ChallengeLeaderboard'
+import ChallengeLeaderboard from './pages/Leaderboard/ChallengeLeaderboard'
 // import ProjectLeaderboard from './pages/Leaderboard/ProjectLeaderboard'
 // import CountryLeaderboard from './pages/Leaderboard/CountryLeaderboard'
 import ChallengePane from './components/ChallengePane/ChallengePane'
@@ -138,8 +138,8 @@ export class App extends Component {
             <CachedRoute path='/social' component={Social} />
             <CachedRoute path='/activity' component={GlobalActivity} />
             {/* Disable Pages till leaderboards support unique queries */}
-            {/* <CachedRoute path='/challenge/:challengeId/leaderboard' component={ChallengeLeaderboard} />
-            <CachedRoute path='/project/:projectId/leaderboard' component={ProjectLeaderboard} />
+            <CachedRoute path='/challenge/:challengeId/leaderboard' component={ChallengeLeaderboard} />
+            {/* <CachedRoute path='/project/:projectId/leaderboard' component={ProjectLeaderboard} />
             <CachedRoute path='/country/:countryCode/leaderboard' component={CountryLeaderboard} /> */}
             <CachedRoute path='/challenge/:challengeId/task/:taskId/inspect' component={InspectTask} />
             <CachedRoute path='/challenge/:challengeId/task/:taskId/review' component={CurrentReviewTaskPane} />

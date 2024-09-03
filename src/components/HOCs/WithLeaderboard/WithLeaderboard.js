@@ -11,7 +11,7 @@ import _get from 'lodash/get'
 import _merge from 'lodash/merge'
 import _uniqueId from 'lodash/uniqueId'
 import queryString from 'query-string'
-import { fetchLeaderboard, fetchLeaderboardForUser, fetchReviewerLeaderboard,
+import { fetchLeaderboard, fetchLeaderboardForUser, fetchChallengeLeaderboardForUser, fetchReviewerLeaderboard,
          DEFAULT_LEADERBOARD_COUNT, CUSTOM_RANGE,
          USER_TYPE_MAPPER, USER_TYPE_REVIEWER } from '../../../services/Leaderboard/Leaderboard'
 
@@ -70,6 +70,36 @@ const WithLeaderboard = function(WrappedComponent, initialMonthsPast=1, initialO
       }
 
       return params.values()
+    }
+
+    fetchChallengeLeaderboard = (numberMonths) => {
+      // If we are filtering by challenges and no challenges are provided then
+      // we don't need to go to the server.
+      const options = _merge({}, initialOptions, this.props.leaderboardOptions)
+    
+      const currentFetch = _uniqueId()
+      this.setState({ leaderboardLoading: true, fetchId: currentFetch })
+    
+      this.props.fetchLeaderboard(this.props.challenge.id, -1, 20).then((leaderboard) => {
+        if (currentFetch >= this.state.fetchId) {
+          this.setState({ leaderboard })
+    
+          const userId = _get(this.props, 'user.id')
+          const userScore = _get(this.props, 'user.score')
+          if (userScore && userId && !options.ignoreUser) {
+            this.props
+              .fetchChallengeLeaderboardForUser(userId, this.props.challenge.id, 1, numberMonths)
+              .then((userLeaderboard) => {
+                this.mergeInUserLeaderboard(userLeaderboard)
+                this.setState({ leaderboardLoading: false })
+              })
+          } else {
+            this.setState({ leaderboardLoading: false })
+          }
+        } else {
+          this.setState({ leaderboardLoading: false })
+        }
+      })
     }
 
     updateLeaderboard = (numberMonths, countryCode, loadMore = false, startDate,
@@ -133,7 +163,7 @@ const WithLeaderboard = function(WrappedComponent, initialMonthsPast=1, initialO
     setMonthsPast = (monthsPast, skipHistory=false, userType) => {
       if (monthsPast !== CUSTOM_RANGE) {
         const countryCode = this.props.countryCode
-        this.updateLeaderboard(monthsPast, countryCode, false, null, null, userType)
+        this.fetchChallengeLeaderboard(monthsPast, countryCode, false, null, null, userType)
 
         if (!skipHistory) {
           this.props.history.push(`${this.props.location.pathname}?monthsPast=${monthsPast}`)
@@ -197,7 +227,7 @@ const WithLeaderboard = function(WrappedComponent, initialMonthsPast=1, initialO
 
     componentDidMount() {
       if (!initialOptions.isWidget) {
-        this.updateLeaderboard(this.monthsPast(), this.props.countryCode, false, this.startDate(), this.endDate())
+        this.fetchChallengeLeaderboard(this.monthsPast(), this.props.countryCode, false, this.startDate(), this.endDate())
       }
     }
 
@@ -210,7 +240,7 @@ const WithLeaderboard = function(WrappedComponent, initialMonthsPast=1, initialO
                         (a, b) => _get(a, 'id') === _get(b, 'id')) ||
           !_isEqualWith(this.props.projects, prevProps.projects,
                         (a, b) => _get(a, 'id') === _get(b, 'id'))) {
-        this.updateLeaderboard(this.monthsPast(), this.props.countryCode, false, this.startDate(), this.endDate())
+        this.fetchChallengeLeaderboard(this.monthsPast(), this.props.countryCode, false, this.startDate(), this.endDate())
       }
     }
 
@@ -235,7 +265,7 @@ const WithLeaderboard = function(WrappedComponent, initialMonthsPast=1, initialO
   }
 }
 
-const mapDispatchToProps = (dispatch) => bindActionCreators({ fetchLeaderboard, fetchLeaderboardForUser, fetchReviewerLeaderboard }, dispatch)
+const mapDispatchToProps = (dispatch) => bindActionCreators({ fetchLeaderboard, fetchLeaderboardForUser, fetchChallengeLeaderboardForUser, fetchReviewerLeaderboard }, dispatch)
 
 export default (WrappedComponent, initialMonthsPast, initialOptions) =>
   connect(null, mapDispatchToProps)(WithLeaderboard(WrappedComponent, initialMonthsPast, initialOptions))

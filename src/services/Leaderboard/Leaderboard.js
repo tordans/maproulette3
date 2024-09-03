@@ -34,19 +34,52 @@ const leaderboardCache = setupCustomCache(CACHE_TIME);
  * filters, returning a Promise that resolves to the leaderboard data. Note
  * that leaderboard data is *not* stored in the redux store.
  */
-export const fetchLeaderboard = (numberMonths=null, onlyEnabled=true,
-                                       forProjects=null, forChallenges=null,
-                                       forUsers=null, forCountries=null,
-                                       limit=10, startDate=null, endDate=null) => {
+// export const fetchLeaderboard = (numberMonths=null, onlyEnabled=true,
+//                                        forProjects=null, forChallenges=null,
+//                                        forUsers=null, forCountries=null,
+//                                        limit=10, startDate=null, endDate=null) => {
+//   const params = {
+//     limit,
+//     onlyEnabled
+//   }
+
+//   return async function (dispatch) {
+//     initializeLeaderboardParams(params, numberMonths, forProjects, forChallenges,
+//     forUsers, forCountries, startDate, endDate)
+
+//     const cachedLeaderboard = leaderboardCache.get({}, params, GLOBAL_LEADERBOARD_CACHE);
+
+//     if (cachedLeaderboard) {
+//       return cachedLeaderboard;
+//     }
+
+//     try {
+//       const results = await new Endpoint(api.users.leaderboard, { params }).execute()
+
+//       if (results) {
+//         leaderboardCache.set({}, params, results, GLOBAL_LEADERBOARD_CACHE)
+//       }
+
+//       return results
+//     } catch (error) {
+//       console.error('Error fetching leaderboard:', error)
+//        //Prevent error modals on leaderboard widgets, and retain error modal on leaderboard page
+//       if(!forProjects && !forChallenges){
+//         dispatch(addError(AppErrors.leaderboard.fetchFailure))
+//       }
+//       return []
+//     }
+//   }
+// }
+
+export const fetchLeaderboard = (challengeId, numberOfMonths=1, limit=10) => {
   const params = {
-    limit,
-    onlyEnabled
+    challengeId,
+    monthDuration: numberOfMonths || CURRENT_MONTH,
+    limit
   }
 
   return async function (dispatch) {
-    initializeLeaderboardParams(params, numberMonths, forProjects, forChallenges,
-    forUsers, forCountries, startDate, endDate)
-
     const cachedLeaderboard = leaderboardCache.get({}, params, GLOBAL_LEADERBOARD_CACHE);
 
     if (cachedLeaderboard) {
@@ -54,7 +87,7 @@ export const fetchLeaderboard = (numberMonths=null, onlyEnabled=true,
     }
 
     try {
-      const results = await new Endpoint(api.users.leaderboard, { params }).execute()
+      const results = await new Endpoint(api.users.challengeLeaderboard, { params }).execute()
 
       if (results) {
         leaderboardCache.set({}, params, results, GLOBAL_LEADERBOARD_CACHE)
@@ -63,10 +96,7 @@ export const fetchLeaderboard = (numberMonths=null, onlyEnabled=true,
       return results
     } catch (error) {
       console.error('Error fetching leaderboard:', error)
-       //Prevent error modals on leaderboard widgets, and retain error modal on leaderboard page
-      if(!forProjects && !forChallenges){
         dispatch(addError(AppErrors.leaderboard.fetchFailure))
-      }
       return []
     }
   }
@@ -115,6 +145,46 @@ export const fetchLeaderboardForUser = (userId, bracket=0, numberMonths=1,
       return null
     }
   }
+}
+
+/**
+ * Retrieve leaderboard data for a user from the server for the given date range and
+ * filters, returning a Promise that resolves to the leaderboard data. Note
+ * that leaderboard data is *not* stored in the redux store.
+ */
+export const fetchChallengeLeaderboardForUser = (userId, challengeId, bracket=0, numberMonths=1) => {
+const params = {
+challengeId,
+bracket,
+numberMonths
+}
+
+return async function (dispatch) {
+
+const variables = {
+id: userId
+}
+
+const cachedLeaderboard = leaderboardCache.get(variables, params, USER_LEADERBOARD_CACHE);
+
+if (cachedLeaderboard) {
+return cachedLeaderboard;
+}
+
+try {
+const results = await new Endpoint(api.users.userChallengeLeaderboard, {variables, params}).execute()
+
+if (results) {
+leaderboardCache.set(variables, params, results, USER_LEADERBOARD_CACHE)
+}
+
+return results;
+} catch (error) {
+console.error('Error fetching leaderboard:', error)
+dispatch(addError(AppErrors.leaderboard.userFetchFailure))
+return null
+}
+}
 }
 
 /**
